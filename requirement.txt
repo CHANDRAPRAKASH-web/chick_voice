@@ -1,7 +1,8 @@
-streamlit>=1.20
-torch>=2.0
+streamlit
+torch
 torchaudio
 librosa
 matplotlib
-ffmpeg-python
 numpy
+ffmpeg-python
+python-multipart
