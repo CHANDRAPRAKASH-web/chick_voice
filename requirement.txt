@@ -1,0 +1,7 @@
+streamlit>=1.20
+torch>=2.0
+torchaudio
+librosa
+matplotlib
+ffmpeg-python
+numpy
