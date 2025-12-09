@@ -1,8 +1,10 @@
 streamlit
 torch
 torchaudio
-librosa
 matplotlib
 numpy
 ffmpeg-python
-python-multipart
+
+librosa==0.10.1
+numba==0.57.1
+llvmlite==0.40.1
