@@ -1,4 +1,6 @@
 
+# train.py
+
 import os
 import random
 
@@ -60,7 +62,7 @@ def get_dataloaders(
     data_dir="data",
     batch_size=16,
     val_ratio=0.1,      # 10% val, 90% train
-    num_workers=2,
+    num_workers=0,      # 0 is safest on Windows/CPU
     use_augmentation=True,
 ):
     base_dataset = ChickenVoiceDataset(root_dir=data_dir)
@@ -82,7 +84,7 @@ def get_dataloaders(
         batch_size=batch_size,
         shuffle=True,
         num_workers=num_workers,
-        pin_memory=True,
+        pin_memory=False,   # True not needed on pure CPU
     )
 
     val_loader = DataLoader(
@@ -90,7 +92,7 @@ def get_dataloaders(
         batch_size=batch_size,
         shuffle=False,
         num_workers=num_workers,
-        pin_memory=True,
+        pin_memory=False,
     )
 
     return train_loader, val_loader, base_dataset.label2idx
@@ -106,8 +108,8 @@ def train_one_epoch(model, loader, optimizer, criterion, device, scaler):
     use_cuda_amp = device.startswith("cuda")
 
     for xb, yb in loader:
-        xb = xb.to(device, non_blocking=True)
-        yb = yb.to(device, non_blocking=True)
+        xb = xb.to(device)
+        yb = yb.to(device)
 
         optimizer.zero_grad()
 
@@ -144,8 +146,8 @@ def evaluate(model, loader, criterion, device):
 
     with torch.no_grad():
         for xb, yb in loader:
-            xb = xb.to(device, non_blocking=True)
-            yb = yb.to(device, non_blocking=True)
+            xb = xb.to(device)
+            yb = yb.to(device)
 
             if use_cuda_amp:
                 with autocast():
@@ -170,11 +172,11 @@ def main():
     # --------- hyperparams (Option B: stronger) ---------
     data_dir = "data"
     batch_size = 16
-    num_epochs = 20           # more epochs
+    num_epochs = 20
     lr = 1e-3
     val_ratio = 0.1           # 90% train, 10% val
-    num_workers = 2
-    use_augmentation = True   # augment train set
+    num_workers = 0           # 0 = safest on Windows/CPU
+    use_augmentation = True
     # ---------------------------------------------------
 
     train_loader, val_loader, label2idx = get_dataloaders(
@@ -229,8 +231,10 @@ def main():
                 },
                 best_model_path,
             )
-            print(f"  ✅ New best model saved to {best_model_path} "
-                  f"(val_acc={val_acc:.4f})")
+            print(
+                f"  ✅ New best model saved to {best_model_path} "
+                f"(val_acc={val_acc:.4f})"
+            )
 
     print("\nTraining complete.")
     print("Best validation accuracy:", best_val_acc)
