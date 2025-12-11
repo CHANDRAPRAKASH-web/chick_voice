@@ -13,7 +13,7 @@ from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from .model import ChickenResNet  # your ResNet-18 model
+from model import ChickenResNet  # your ResNet-18 model
 
 
 # ===== SETTINGS (match training) =====
@@ -175,4 +175,5 @@ async def predict_endpoint(file: UploadFile = File(...)):
         confidence=confidence,
         confidence_percent=confidence_percent,
         probabilities=prob_dict,
+
     )
